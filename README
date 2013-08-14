@@ -1,0 +1,68 @@
+-------------------------------------------------------------------------------
+	Trace-cmd plugin for parsing USB 3.0 host controller driver traces
+-------------------------------------------------------------------------------
+
+This plugin can be used to report in a human readable format some xhci traces
+that trace raw byte arrays by parsing and displaying the raw bytes registered
+in the entry structure of the trace ring buffer in a human readable way.
+
+To use the plugin_xhci.py, you need first to download and install the
+trace-cmd tool:
+
+$ git clone git://git.kernel.org/pub/scm/linux/kernel/git/rostedt/trace-cmd.git
+$ cd trace-cmd
+$ make && sudo make install
+
+The above command will install trace-cmd by default in /usr/local/bin.
+If you want to install it in another directory do, instead:
+
+$ make prefix=<dir> install
+
+Place the plugin_xhci.py file, in the plugins directory.
+The plugins directory can be found by default in the directory
+/usr/local/lib/trace-cmd/plugins, otherwise if you have set another
+directory, in <dir>/lib/trace-cmd/plugins.
+
+To view the list of available xhci trace events do:
+
+$ trace-cmd list | grep xhci-hcd
+
+To start recording, for example, the xhci-hcd:xhci_cmd_completion event do:
+
+$ trace-cmd record -e xhci-hcd:xhci_cmd_completion
+
+This command will create a trace.dat file, in your current directory,
+where the trace output is written.
+Enter Ctrl-C to disable the trace event.
+
+Then, to view the generated traces, do:
+
+$ trace-cmd report
+
+This command will load the xhci_plugin.py and if there is a handler
+implemented for the recorded trace event, this handler will be used
+to parse the trace output recorded in trace.dat and will display in
+the console the formatted output.
+
+In case that there is no handler implemented, the trace output will be
+displayed using the default ftrace printk as defined in the corresponding
+trace event's DECLARE_EVENT_CLASS TP_printk macro. To see the default format,
+do:
+
+$ trace-cmd report -N
+
+To view the raw content of the ring buffer entry's fields, do:
+
+$ trace-cmd report -R
+
+If you want to see both the address debug messages and the address context
+you can do:
+
+$ trace-cmd record -e xhci-hcd:*address*
+
+If you want to enable all xhci events do:
+
+$ trace-cmd record -e xhci-hcd
+
+With an analogous way, you can proceed for displaying and the rest of
+the xhci trace events.
